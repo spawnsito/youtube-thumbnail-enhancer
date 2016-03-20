@@ -1,6 +1,8 @@
 <?php
 
-// GET YOUTUBE ID FROM THE SLEW OF YOUTUBE URLS 
+require 'src/Configuration.php';
+
+// GET YOUTUBE ID FROM THE SLEW OF YOUTUBE URLS
 // (FOUND ON STACKEXCHANGE SOMEWHERE)
 function getYouTubeIdFromURL($url)
 {
@@ -9,13 +11,12 @@ function getYouTubeIdFromURL($url)
     return isset($matches[1]) ? $matches[1] : false;
 }
 
-
+$configuration = new Configuration($_REQUEST);
 // PARAMETERS
 $is_url = false;
-$quality = $_REQUEST['quality'];
-$quality = ($quality == "hq") ? "hq" : "mq";
+$quality = $configuration->obtainQuality();
 $inpt = trim($_REQUEST['inpt']);
-$show_play_icon = isset($_REQUEST['play']) ? true : false;
+$show_play_icon = $configuration->obtainShowPlayIcon();
 $play_btn_file_name = ($show_play_icon) ? "-play" : "";
 
 
