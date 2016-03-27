@@ -6,8 +6,12 @@ class Configuration
 {
     const QUALITY_KEY = 'quality';
     const SHOW_PLAY_ICON_KEY = 'play';
+    const INPUT_KEY = 'inpt';
 
-    const DEFAULT_QUALITY = 'mq';
+    const HIGH_QUALITY = 'hq';
+    const LOW_QUALITY = 'mq';
+
+    const DEFAULT_QUALITY = self::LOW_QUALITY;
     const DEFAULT_SHOW_PLAY_ICON = false;
 
     private $options;
@@ -15,6 +19,7 @@ class Configuration
     private $defaults = array(
         self::QUALITY_KEY => self::DEFAULT_QUALITY,
         self::SHOW_PLAY_ICON_KEY => self::DEFAULT_SHOW_PLAY_ICON,
+        self::INPUT_KEY => '',
     );
 
     public function __construct($options = array())
@@ -33,5 +38,10 @@ class Configuration
     public function obtainShowPlayIcon()
     {
         return $this->options[self::SHOW_PLAY_ICON_KEY];
+    }
+
+    public function obtainInput()
+    {
+        return trim($this->options[self::INPUT_KEY]);
     }
 }

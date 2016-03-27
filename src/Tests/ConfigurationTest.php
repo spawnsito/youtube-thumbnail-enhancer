@@ -35,4 +35,13 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $configuration = new Configuration($options);
         $this->assertEquals(true, $configuration->obtainShowPlayIcon());
     }
+
+    public function testInputOption()
+    {
+        $options = array('inpt' => 'https://www.youtube.com/watch?v=8hRUiytcbf8');
+        $configuration = new Configuration($options);
+
+        $this->assertEquals('https://www.youtube.com/watch?v=8hRUiytcbf8', $configuration->obtainInput());
+
+    }
 }

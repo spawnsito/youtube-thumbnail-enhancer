@@ -4,9 +4,7 @@ require_once 'Configuration.php';
 
 class OptionSanatizer
 {
-    const HIGH_QUALITY = 'hq';
-    const LOW_QUALITY = 'hq';
-
+    
     public function sanatize($options)
     {
         $options = $this->sanatizeShowPlayIconOption($options);
@@ -28,7 +26,7 @@ class OptionSanatizer
 
     private function sanatizeQualityOption($options)
     {
-        $validValues = array(self::LOW_QUALITY, self::HIGH_QUALITY);
+        $validValues = array(Configuration::LOW_QUALITY, Configuration::HIGH_QUALITY);
         if (isset($options[Configuration::QUALITY_KEY]) && in_array($options[Configuration::QUALITY_KEY], $validValues)) {
             return $options;
         }

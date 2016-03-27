@@ -15,7 +15,7 @@ $configuration = new Configuration($_REQUEST);
 // PARAMETERS
 $is_url = false;
 $quality = $configuration->obtainQuality();
-$inpt = trim($_REQUEST['inpt']);
+$inpt = $configuration->obtainInput();
 $show_play_icon = $configuration->obtainShowPlayIcon();
 $play_btn_file_name = ($show_play_icon) ? "-play" : "";
 
