@@ -1,5 +1,6 @@
 <?php
 
+require_once 'OptionSanatizer.php';
 
 class Configuration
 {
@@ -18,8 +19,9 @@ class Configuration
 
     public function __construct($options = array())
     {
-        $options = $this->sanatizeShowPlayIconOption($options);
-        $options = $this->sanatizeQualityOption($options);
+        $sanitizer = new OptionSanatizer($options);
+        $options = $sanitizer->sanatize($options);
+        
         $this->options = array_replace($this->defaults, $options);
     }
 
@@ -31,28 +33,5 @@ class Configuration
     public function obtainShowPlayIcon()
     {
         return $this->options[self::SHOW_PLAY_ICON_KEY];
-    }
-
-    private function sanatizeShowPlayIconOption($options)
-    {
-        if (!isset($options[self::SHOW_PLAY_ICON_KEY])) {
-            return $options;
-        }
-
-        $options[self::SHOW_PLAY_ICON_KEY] = true;
-
-        return $options;
-    }
-
-    private function sanatizeQualityOption($options)
-    {
-        $validValues = array('mq', 'hq');
-        if (isset($options[self::QUALITY_KEY]) && in_array($options[self::QUALITY_KEY], $validValues)) {
-            return $options;
-        }
-        
-        $options[self::QUALITY_KEY] = self::DEFAULT_QUALITY;
-
-        return $options;
     }
 }
