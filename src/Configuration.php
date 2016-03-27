@@ -7,6 +7,7 @@ class Configuration
     const QUALITY_KEY = 'quality';
     const SHOW_PLAY_ICON_KEY = 'play';
     const INPUT_KEY = 'inpt';
+    const REFRESH_KEY = 'refresh';
 
     const HIGH_QUALITY = 'hq';
     const LOW_QUALITY = 'mq';
@@ -54,6 +55,11 @@ class Configuration
         } else {
             return $this->obtainInput();
         }
+    }
+
+    public function obtainRefresh()
+    {
+        return isset($this->options[self::REFRESH_KEY]);
     }
 
     private function isUrl()

@@ -27,7 +27,7 @@ $filename .= $play_btn_file_name;
 
 
 // IF EXISTS, GO
-if (file_exists("i/" . $filename . ".jpg") AND !isset($_GET['refresh'])) {
+if (file_exists("i/" . $filename . ".jpg") && !$configuration->obtainRefresh()) {
     header("Location: i/" . $filename . ".jpg");
     die;
 }
