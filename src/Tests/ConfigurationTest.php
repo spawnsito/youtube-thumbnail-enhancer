@@ -22,6 +22,13 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hq', $configuration->obtainQuality());
     }
     
+    public function testSanitizeQualityOption()
+    {
+        $options = array('quality' => 'void');
+        $configuration = new Configuration($options);
+        $this->assertEquals('mq', $configuration->obtainQuality());
+    }
+    
     public function testCreateWithShowPlayOption()
     {
         $options = array('play' => true);
