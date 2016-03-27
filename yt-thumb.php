@@ -19,36 +19,10 @@ $inpt = $configuration->obtainInput();
 $show_play_icon = $configuration->obtainShowPlayIcon();
 $play_btn_file_name = ($show_play_icon) ? "-play" : "";
 
-
-// ADD HTTP
-if (substr($inpt, 0, 4) == "www.") {
-    $inpt = "http://" . $inpt;
-    $is_url = true;
-}
-if (substr($inpt, 0, 8) == "youtube.") {
-    $inpt = "http://" . $inpt;
-    $is_url = true;
-}
-if (substr($inpt, 0, 8) == "youtu.be") {
-    $inpt = "http://" . $inpt;
-    $is_url = true;
-}
-
-// IF URL GET ID
-if (substr($inpt, 0, 7) == "http://" OR substr($inpt, 0, 8) == "https://") {
-    $is_url = true;
-    $id = getYouTubeIdFromURL($inpt);
-}
-
-
-// IF NOT URL TRY ID AS INPUT
-if (!$is_url) {
-    $id = $inpt;
-}
-
+$youtubeId = $configuration->obtainYoutubeId();
 
 // FILENAME
-$filename = ($quality == "mq") ? $id . "-mq" : $id;
+$filename = ($quality == "mq") ? $youtubeId . "-mq" : $youtubeId;
 $filename .= $play_btn_file_name;
 
 
@@ -60,7 +34,7 @@ if (file_exists("i/" . $filename . ".jpg") AND !isset($_GET['refresh'])) {
 
 
 // CHECK IF YOUTUBE VIDEO
-$handle = curl_init("https://www.youtube.com/watch/?v=" . $id);
+$handle = curl_init("https://www.youtube.com/watch/?v=" . $youtubeId);
 curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
 $response = curl_exec($handle);
 
@@ -76,14 +50,14 @@ curl_close($handle);
 
 
 // IF NOT ID THROW AN ERROR
-if (!$id) {
+if (!$youtubeId) {
     header("Status: 404 Not Found");
     die("YouTube ID not found");
 }
 
 
 // CREATE IMAGE FROM YOUTUBE THUMB
-$image = imagecreatefromjpeg("http://img.youtube.com/vi/" . $id . "/" . $quality . "default.jpg");
+$image = imagecreatefromjpeg("http://img.youtube.com/vi/" . $youtubeId . "/" . $quality . "default.jpg");
 
 
 // IF HIGH QUALITY WE CREATE A NEW CANVAS WITHOUT THE BLACK BARS

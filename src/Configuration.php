@@ -14,6 +14,8 @@ class Configuration
     const DEFAULT_QUALITY = self::LOW_QUALITY;
     const DEFAULT_SHOW_PLAY_ICON = false;
 
+    const ID_PATTERN = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
+
     private $options;
 
     private $defaults = array(
@@ -44,4 +46,37 @@ class Configuration
     {
         return trim($this->options[self::INPUT_KEY]);
     }
+
+    public function obtainYoutubeId()
+    {
+        if ($this->isUrl()) {
+            return $this->obtainYouTubeIdFromURL();
+        } else {
+            return $this->obtainInput();
+        }
+    }
+
+    private function isUrl()
+    {
+        $input = $this->obtainInput();
+        $urlValues = array('youtube.', 'youtu.be', 'https://');
+
+        if (substr($input, 0, 4) == "www." || in_array(substr($input, 0, 8),  $urlValues)  ||  substr($input, 0, 7) == "http://") {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function obtainYouTubeIdFromURL()
+    {
+        preg_match(self::ID_PATTERN, $this->obtainInput(), $matches);
+
+        if (!isset($matches[1])) {
+            return $this->obtainInput();
+        }
+
+        return $matches[1];
+    }
+
 }
