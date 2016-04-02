@@ -5,6 +5,7 @@ require_once __DIR__ . '/CurlRequest.php';
 require_once __DIR__ . '/Image.php';
 require_once __DIR__ . '/FileSystem.php';
 require_once __DIR__ . '/YoutubeIdNotFoundException.php';
+require_once __DIR__ . '/YoutubeResourceNotFoundException.php';
 
 class YoutubeThumbnail
 {
@@ -59,8 +60,7 @@ class YoutubeThumbnail
         }
 
         if (!$this->isThereResponseFromYoutube($youtubeId)) {
-            header("Status: 404 Not Found");
-            die("No YouTube video found or YouTube timed out. Try again soon.");
+            throw new YoutubeResourceNotFoundException();
         }
 
         $imagePath = "http://img.youtube.com/vi/" . $youtubeId . "/" . $quality . "default.jpg";

@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../YoutubeThumbnail.php';
 require_once __DIR__ . '/../Configuration.php';
 require_once __DIR__ . '/../YoutubeIdNotFoundException.php';
+require_once __DIR__ . '/../YoutubeResourceNotFoundException.php';
 require_once __DIR__ . '/stubs/CurlRequestStub.php';
 require_once __DIR__ . '/stubs/FileSystemStub.php';
 
@@ -46,6 +47,27 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
             $youtubeThumbnail->create($configuration);
             $this->assertTrue(false);
         } catch (YoutubeIdNotFoundException $exception) {
+            $this->assertTrue(true);
+        }
+
+    }
+
+    public function testVideoYoutubeNotFound()
+    {
+        $options = array('inpt' => 'https://www.youtube.com/watch?v=8hRUiytcbf8');
+        $configuration = new Configuration($options);
+
+        $youtubeThumbnail = new YoutubeThumbnail($configuration);
+        $curlRequest = new CurlRequestStub();
+        $curlRequest->ping = false;
+
+        $youtubeThumbnail->setCurlRequest($curlRequest);
+        $youtubeThumbnail->setCacheSystem(new FileSystemStub());
+
+        try {
+            $youtubeThumbnail->create($configuration);
+            $this->assertTrue(false);
+        } catch (YoutubeResourceNotFoundException $exception) {
             $this->assertTrue(true);
         }
 
