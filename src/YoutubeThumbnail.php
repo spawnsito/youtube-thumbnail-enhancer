@@ -4,6 +4,7 @@ require_once __DIR__ . '/Configuration.php';
 require_once __DIR__ . '/CurlRequest.php';
 require_once __DIR__ . '/Image.php';
 require_once __DIR__ . '/FileSystem.php';
+require_once __DIR__ . '/YoutubeIdNotFoundException.php';
 
 class YoutubeThumbnail
 {
@@ -54,8 +55,7 @@ class YoutubeThumbnail
         }
 
         if (!$youtubeId) {
-            header("Status: 404 Not Found");
-            die("YouTube ID not found");
+            throw new YoutubeIdNotFoundException();
         }
 
         if (!$this->isThereResponseFromYoutube($youtubeId)) {
