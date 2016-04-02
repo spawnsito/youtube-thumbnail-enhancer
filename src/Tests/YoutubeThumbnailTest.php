@@ -21,13 +21,13 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
 
         $youtubeThumbnail = new YoutubeThumbnail($configuration);
         $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
-        $youtubeThumbnail->setCacheSystem(new FileSystemStub());
 
-        $thumbnail = $youtubeThumbnail->create($configuration);
+        $fileSystem = new FileSystemStub(__DIR__ . '/fixtures/');
+        $youtubeThumbnail->setCacheSystem($fileSystem);
 
+        $output = $youtubeThumbnail->create($configuration);
         $expected = __DIR__ . '/fixtures/image.jpg';
-        $output = __DIR__ . '/fixtures/image_output.jpg';
-        $thumbnail->render(95, $output);
+
 
         $this->assertFileEquals($expected, $output);
 
@@ -60,7 +60,6 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
         $youtubeThumbnail = new YoutubeThumbnail($configuration);
         $curlRequest = new CurlRequestStub();
         $curlRequest->ping = false;
-
         $youtubeThumbnail->setCurlRequest($curlRequest);
         $youtubeThumbnail->setCacheSystem(new FileSystemStub());
 
@@ -70,5 +69,24 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
         } catch (YoutubeResourceNotFoundException $exception) {
             $this->assertTrue(true);
         }
+    }
+
+    public function testObtainFromCache()
+    {
+        $options = array('inpt' => 'https://www.youtube.com/watch?v=8hRUiytcbf8');
+        $configuration = new Configuration($options);
+
+        $youtubeThumbnail = new YoutubeThumbnail($configuration);
+        $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
+
+        $fileSystem = new FileSystemStub(__DIR__ . '/fixtures');
+        $fileSystem->exists = true;
+        $fileSystem->filename = __DIR__ . '/fixtures/image.jpg';
+        $youtubeThumbnail->setCacheSystem($fileSystem);
+
+        $expected = __DIR__ . '/fixtures/image.jpg';
+        $output = $youtubeThumbnail->create($configuration);
+
+        $this->assertFileEquals($expected, $output);
     }
 }

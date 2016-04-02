@@ -10,6 +10,7 @@ require_once __DIR__ . '/YoutubeResourceNotFoundException.php';
 class YoutubeThumbnail
 {
     const PATH = "http://img.youtube.com/vi/{id}/{quality}default.jpg";
+    const RESOURCE_PATH = '/../i/';
 
     private $curlRequest;
     private $cacheSystem;
@@ -31,7 +32,7 @@ class YoutubeThumbnail
     public function getCacheSystem()
     {
         if (!$this->cacheSystem) {
-            $this->cacheSystem = new FileSystem();
+            $this->cacheSystem = new FileSystem(realpath(__DIR__ . self::RESOURCE_PATH));
         }
 
         return $this->cacheSystem;
@@ -52,9 +53,9 @@ class YoutubeThumbnail
         $filename = ($quality == "mq") ? $youtubeId . "-mq" : $youtubeId;
         $filename .= $play_btn_file_name;
 
-        if ($this->getCacheSystem()->exists("i/" . $filename . ".jpg") && !$configuration->obtainRefresh()) {
-            header("Location: i/" . $filename . ".jpg");
-            die;
+        $filename = $filename . ".jpg";
+        if ($this->getCacheSystem()->exists($filename) && !$configuration->obtainRefresh()) {
+            return $this->getCacheSystem()->obtain($filename);
         }
 
         if (!$youtubeId) {
@@ -71,7 +72,10 @@ class YoutubeThumbnail
             $imageObject->addPlayIcon();
         }
 
-        return $imageObject;
+        $path = $this->getCacheSystem()->obtainPath() . $filename;
+        $imageObject->render(95, $path);
+
+        return $path;
     }
 
     private function isThereResponseFromYoutube($youtubeId)
