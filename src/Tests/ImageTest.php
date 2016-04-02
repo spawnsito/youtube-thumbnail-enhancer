@@ -1,12 +1,12 @@
 <?php
 
-require_once '../Image.php';
+require_once __DIR__ . '/../Image.php';
 
 class ImageTest extends PHPUnit_Framework_TestCase
 {
     public function testInstanceOf()
     {
-        $this->assertInstanceOf('Image', new Image('fixtures/image.jpg'));
+        $this->assertInstanceOf('Image', new Image(__DIR__ . '/fixtures/image.jpg'));
     }
 
     public function testObtainImage()
