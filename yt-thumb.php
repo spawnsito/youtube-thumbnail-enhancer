@@ -1,6 +1,7 @@
 <?php
 
 require 'src/Configuration.php';
+require 'src/Image.php';
 
 function isThereResponseFromYoutube($youtubeId)
 {
@@ -49,19 +50,10 @@ if (!isThereResponseFromYoutube($youtubeId)) {
     die("No YouTube video found or YouTube timed out. Try again soon.");
 }
 
-// CREATE IMAGE FROM YOUTUBE THUMB
-$image = imagecreatefromjpeg("http://img.youtube.com/vi/" . $youtubeId . "/" . $quality . "default.jpg");
+$imagePath = "http://img.youtube.com/vi/" . $youtubeId . "/" . $quality . "default.jpg";
+$imageObject = new Image($imagePath, $quality);
 
-
-// IF HIGH QUALITY WE CREATE A NEW CANVAS WITHOUT THE BLACK BARS
-if ($quality == "hq") {
-    $cleft = 0;
-    $ctop = 45;
-    $canvas = imagecreatetruecolor(480, 270);
-    imagecopy($canvas, $image, 0, 0, $cleft, $ctop, 480, 360);
-    $image = $canvas;
-}
-
+$image = $imageObject->obtainImage();
 
 $imageWidth = imagesx($image);
 $imageHeight = imagesy($image);
