@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../YoutubeThumbnail.php';
 require_once __DIR__ . '/../Configuration.php';
+require_once __DIR__ . '/stubs/CurlRequestStub.php';
 
 class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
 {
@@ -16,6 +17,8 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
         $configuration = new Configuration($options);
 
         $youtubeThumbnail = new YoutubeThumbnail($configuration);
+        $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
+
         $thumbnail = $youtubeThumbnail->create($configuration);
 
         $expected = __DIR__ . '/fixtures/image.jpg';

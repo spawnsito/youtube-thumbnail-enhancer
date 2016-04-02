@@ -1,11 +1,25 @@
 <?php
 
 require_once __DIR__ . '/Configuration.php';
+require_once __DIR__ . '/CurlRequest.php';
+require_once __DIR__ . '/Image.php';
 
 class YoutubeThumbnail
 {
-    public function __construct()
+    private $curlRequest;
+
+    public function getCurlRequest()
     {
+        if (!$this->curlRequest) {
+            $this->curlRequest = new CurlRequest();
+        }
+
+        return $this->curlRequest;
+    }
+
+    public function setCurlRequest(CurlRequest $curlRequest)
+    {
+        $this->curlRequest = $curlRequest;
     }
 
     public function create(Configuration $configuration)
@@ -45,17 +59,7 @@ class YoutubeThumbnail
 
     private function isThereResponseFromYoutube($youtubeId)
     {
-        $handle = curl_init("https://www.youtube.com/watch/?v=" . $youtubeId);
-        curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
-        $response = curl_exec($handle);
-
-        $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        if ($httpCode == 404 OR !$response) {
-            return false;
-        }
-
-        curl_close($handle);
-        return true;
+        return $this->getCurlRequest()->ping("https://www.youtube.com/watch/?v=" . $youtubeId);
     }
 
 }
