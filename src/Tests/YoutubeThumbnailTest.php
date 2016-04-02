@@ -6,6 +6,7 @@ require_once __DIR__ . '/../YoutubeIdNotFoundException.php';
 require_once __DIR__ . '/../YoutubeResourceNotFoundException.php';
 require_once __DIR__ . '/stubs/CurlRequestStub.php';
 require_once __DIR__ . '/stubs/FileSystemStub.php';
+require_once __DIR__ . '/stubs/YoutubeStorageStub.php';
 
 class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
 {
@@ -22,12 +23,12 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
         $youtubeThumbnail = new YoutubeThumbnail($configuration);
         $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
 
-        $fileSystem = new FileSystemStub(__DIR__ . '/fixtures/');
+        $fileSystem = new FileSystemStub(__DIR__ . '/output/');
         $youtubeThumbnail->setCacheSystem($fileSystem);
+        $youtubeThumbnail->setYoutubeStorage(new YoutubeStorageStub());
 
         $output = $youtubeThumbnail->create($configuration);
         $expected = __DIR__ . '/fixtures/image.jpg';
-
 
         $this->assertFileEquals($expected, $output);
 
@@ -87,6 +88,59 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
         $expected = __DIR__ . '/fixtures/image.jpg';
         $output = $youtubeThumbnail->create($configuration);
 
-        $this->assertFileEquals($expected, $output);
+        $this->assertEquals($expected, $output);
     }
+
+    public function testCreateHighQualityThumbnail()
+    {
+        $options = array('quality' => 'hq', 'inpt' => 'https://www.youtube.com/watch?v=8hRUiytcbf8');
+        $configuration = new Configuration($options);
+
+        $youtubeThumbnail = new YoutubeThumbnail($configuration);
+        $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
+
+        $fileSystem = new FileSystemStub(__DIR__ . '/output/');
+        $youtubeThumbnail->setCacheSystem($fileSystem);
+
+        $output = $youtubeThumbnail->create($configuration);
+        $this->assertFileExists($output);
+
+        unlink($output);
+    }
+
+    public function testCreateHighQualityWithWatermarkThumbnail()
+    {
+        $options = array('quality' => 'hq', 'inpt' => 'https://www.youtube.com/watch?v=8hRUiytcbf8', 'play' => true);
+        $configuration = new Configuration($options);
+
+        $youtubeThumbnail = new YoutubeThumbnail($configuration);
+        $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
+
+        $fileSystem = new FileSystemStub(__DIR__ . '/fixtures/');
+        $youtubeThumbnail->setCacheSystem($fileSystem);
+
+        $output = $youtubeThumbnail->create($configuration);
+        $this->assertFileExists($output);
+
+        unlink($output);
+    }
+
+    public function testCreateMediumQualityWithWatermarkThumbnail()
+    {
+        $options = array('quality' => 'mq', 'inpt' => 'https://www.youtube.com/watch?v=8hRUiytcbf8', 'play' => true);
+        $configuration = new Configuration($options);
+
+        $youtubeThumbnail = new YoutubeThumbnail($configuration);
+        $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
+
+        $fileSystem = new FileSystemStub(__DIR__ . '/output/');
+        $youtubeThumbnail->setCacheSystem($fileSystem);
+
+        $output = $youtubeThumbnail->create($configuration);
+        $this->assertFileExists($output);
+
+        unlink($output);
+    }
+
+
 }

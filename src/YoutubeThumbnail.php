@@ -6,14 +6,15 @@ require_once __DIR__ . '/Image.php';
 require_once __DIR__ . '/FileSystem.php';
 require_once __DIR__ . '/YoutubeIdNotFoundException.php';
 require_once __DIR__ . '/YoutubeResourceNotFoundException.php';
+require_once __DIR__ . '/YoutubeStorage.php';
 
 class YoutubeThumbnail
 {
-    const PATH = "http://img.youtube.com/vi/{id}/{quality}default.jpg";
     const RESOURCE_PATH = '/../i/';
 
     private $curlRequest;
     private $cacheSystem;
+    private $youtubeStorage;
 
     public function getCurlRequest()
     {
@@ -41,6 +42,20 @@ class YoutubeThumbnail
     public function setCacheSystem($cacheSystem)
     {
         $this->cacheSystem = $cacheSystem;
+    }
+
+    public function getYoutubeStorage()
+    {
+        if (!$this->youtubeStorage) {
+            $this->youtubeStorage = new YoutubeStorage();
+        }
+
+        return $this->youtubeStorage;
+    }
+
+    public function setYoutubeStorage($youtubeStorage)
+    {
+        $this->youtubeStorage = $youtubeStorage;
     }
 
     public function create(Configuration $configuration)
@@ -85,7 +100,7 @@ class YoutubeThumbnail
 
     private function obtainPathYoutubeThumbnails($youtubeId, $quality)
     {
-        return str_replace(array('{id}', '{quality}'), array($youtubeId, $quality), self::PATH);
+        return $this->getYoutubeStorage()->obtainResource($youtubeId, $quality);
     }
 
 }
