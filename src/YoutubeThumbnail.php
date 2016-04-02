@@ -11,10 +11,71 @@ require_once __DIR__ . '/YoutubeStorage.php';
 class YoutubeThumbnail
 {
     const RESOURCE_PATH = '/../i/';
+    const ICON_SUFFIX_FILENAME = "-play";
+    const QUALITY_SUFFIX_FILENAME = "-mq";
+    const EXTENSION = ".jpg";
 
     private $curlRequest;
     private $cacheSystem;
     private $youtubeStorage;
+
+    public function create(Configuration $configuration)
+    {
+        $youtubeId = $configuration->obtainYoutubeId();
+
+        $filename = $this->createFilename($youtubeId, $configuration->obtainShowPlayIcon(), $configuration->isNormalQuality());
+        if ($this->getCacheSystem()->exists($filename) && !$configuration->obtainRefresh()) {
+            return $this->getCacheSystem()->obtain($filename);
+        }
+
+        if (!$youtubeId) {
+            throw new YoutubeIdNotFoundException();
+        }
+
+        if (!$this->isThereResponseFromYoutube($youtubeId)) {
+            throw new YoutubeResourceNotFoundException();
+        }
+
+        return $this->doThumbnail($filename, $youtubeId, $configuration);
+    }
+
+    private function createFilename($youtubeId, $playIcon, $isMediumQuality)
+    {
+        $filename = $youtubeId;
+        if ($isMediumQuality) {
+            $filename .= self::QUALITY_SUFFIX_FILENAME;
+        }
+
+        if ($playIcon) {
+            $filename .= self::ICON_SUFFIX_FILENAME;
+        }
+
+        return $filename . self::EXTENSION;
+    }
+
+    private function doThumbnail($filename, $youtubeId, Configuration $configuration)
+    {
+        $imagePath = $this->obtainPathYoutubeThumbnails($youtubeId, $configuration->obtainQuality());
+        $imageObject = new Image($imagePath, $configuration->obtainQuality());
+        if ($configuration->obtainShowPlayIcon()) {
+            $imageObject->addPlayIcon();
+        }
+
+        $path = $this->getCacheSystem()->obtainPath() . '/' . $filename;
+        $imageObject->render(95, $path);
+
+        return $path;
+    }
+
+    private function isThereResponseFromYoutube($youtubeId)
+    {
+        return $this->getCurlRequest()->ping("https://www.youtube.com/watch/?v=" . $youtubeId);
+    }
+
+    private function obtainPathYoutubeThumbnails($youtubeId, $quality)
+    {
+        return $this->getYoutubeStorage()->obtainResource($youtubeId, $quality);
+    }
 
     public function getCurlRequest()
     {
@@ -29,7 +90,7 @@ class YoutubeThumbnail
     {
         $this->curlRequest = $curlRequest;
     }
-    
+
     public function getCacheSystem()
     {
         if (!$this->cacheSystem) {
@@ -38,7 +99,7 @@ class YoutubeThumbnail
 
         return $this->cacheSystem;
     }
-    
+
     public function setCacheSystem($cacheSystem)
     {
         $this->cacheSystem = $cacheSystem;
@@ -57,50 +118,4 @@ class YoutubeThumbnail
     {
         $this->youtubeStorage = $youtubeStorage;
     }
-
-    public function create(Configuration $configuration)
-    {
-        $quality = $configuration->obtainQuality();
-        $show_play_icon = $configuration->obtainShowPlayIcon();
-        $play_btn_file_name = ($show_play_icon) ? "-play" : "";
-        $youtubeId = $configuration->obtainYoutubeId();
-
-        $filename = ($quality == "mq") ? $youtubeId . "-mq" : $youtubeId;
-        $filename .= $play_btn_file_name;
-
-        $filename = $filename . ".jpg";
-        if ($this->getCacheSystem()->exists($filename) && !$configuration->obtainRefresh()) {
-            return $this->getCacheSystem()->obtain($filename);
-        }
-
-        if (!$youtubeId) {
-            throw new YoutubeIdNotFoundException();
-        }
-
-        if (!$this->isThereResponseFromYoutube($youtubeId)) {
-            throw new YoutubeResourceNotFoundException();
-        }
-
-        $imagePath = $this->obtainPathYoutubeThumbnails($youtubeId, $quality);
-        $imageObject = new Image($imagePath, $quality);
-        if ($configuration->obtainShowPlayIcon()) {
-            $imageObject->addPlayIcon();
-        }
-
-        $path = $this->getCacheSystem()->obtainPath() . $filename;
-        $imageObject->render(95, $path);
-
-        return $path;
-    }
-
-    private function isThereResponseFromYoutube($youtubeId)
-    {
-        return $this->getCurlRequest()->ping("https://www.youtube.com/watch/?v=" . $youtubeId);
-    }
-
-    private function obtainPathYoutubeThumbnails($youtubeId, $quality)
-    {
-        return $this->getYoutubeStorage()->obtainResource($youtubeId, $quality);
-    }
-
 }

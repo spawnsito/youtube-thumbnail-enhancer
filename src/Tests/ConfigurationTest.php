@@ -22,6 +22,16 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hq', $configuration->obtainQuality());
     }
 
+    public function testIsNormalQuality()
+    {
+        $configuration = new Configuration();
+        $this->assertTrue($configuration->isNormalQuality());
+
+        $options = array('quality' => 'hq');
+        $configuration = new Configuration($options);
+        $this->assertFalse($configuration->isNormalQuality());
+    }
+
     public function testSanitizeQualityOption()
     {
         $options = array('quality' => 'void');

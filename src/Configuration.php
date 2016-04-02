@@ -85,4 +85,9 @@ class Configuration
         return $matches[1];
     }
 
+    public function isNormalQuality()
+    {
+        return $this->obtainQuality() === self::LOW_QUALITY;
+    }
+
 }
