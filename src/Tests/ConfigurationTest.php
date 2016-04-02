@@ -86,6 +86,14 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($options['inpt'], $configuration->obtainYoutubeId());
     }
 
+    public function testYoutubeIdIsEmpty()
+    {
+        $options = array();
+        $configuration = $this->createConfiguration($options);
+
+        $this->assertEquals('', $configuration->obtainYoutubeId());
+    }
+
     public function testObtainRefresh()
     {
         $options = array('refresh' => true);
