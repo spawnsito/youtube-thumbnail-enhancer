@@ -9,6 +9,8 @@ require_once __DIR__ . '/YoutubeResourceNotFoundException.php';
 
 class YoutubeThumbnail
 {
+    const PATH = "http://img.youtube.com/vi/{id}/{quality}default.jpg";
+
     private $curlRequest;
     private $cacheSystem;
 
@@ -63,7 +65,7 @@ class YoutubeThumbnail
             throw new YoutubeResourceNotFoundException();
         }
 
-        $imagePath = "http://img.youtube.com/vi/" . $youtubeId . "/" . $quality . "default.jpg";
+        $imagePath = $this->obtainPathYoutubeThumbnails($youtubeId, $quality);
         $imageObject = new Image($imagePath, $quality);
         if ($configuration->obtainShowPlayIcon()) {
             $imageObject->addPlayIcon();
@@ -75,6 +77,11 @@ class YoutubeThumbnail
     private function isThereResponseFromYoutube($youtubeId)
     {
         return $this->getCurlRequest()->ping("https://www.youtube.com/watch/?v=" . $youtubeId);
+    }
+
+    private function obtainPathYoutubeThumbnails($youtubeId, $quality)
+    {
+        return str_replace(array('{id}', '{quality}'), array($youtubeId, $quality), self::PATH);
     }
 
 }

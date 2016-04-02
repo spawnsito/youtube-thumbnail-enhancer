@@ -70,6 +70,5 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
         } catch (YoutubeResourceNotFoundException $exception) {
             $this->assertTrue(true);
         }
-
     }
 }
