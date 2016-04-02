@@ -1,5 +1,7 @@
 <?php
 
+require_once 'ImageProperty.php';
+
 class Image
 {
     const HIGH_QUALITY = 'hq';
@@ -12,61 +14,63 @@ class Image
     const HIGH_QUALITY_OFFSET_TOP = 45;
     const HIGH_QUALITY_OFFSET_LEFT = 0;
 
-    const ICON_FILENAME = 'Resources/play-{quality}.png';
+    const ICON_PATH = 'Resources/play-{quality}.png';
 
-    private $canvas;
+    private $image;
     private $quality;
 
     public function __construct($path, $quality = self::MEDIUM_QUALITY)
     {
-        $this->canvas = imagecreatefromjpeg($path);
+        $this->image = new ImageProperty();
+        $this->image->createFromJpeg($path);
+
         $this->quality = $quality;
         if ($quality == self::HIGH_QUALITY) {
             $this->convertToHighQuality();
         }
-
     }
 
     public function obtainImage()
     {
-        return $this->canvas;
+        return $this->image->obtainCanvas();
     }
 
     private function convertToHighQuality()
     {
-        $canvas = imagecreatetruecolor(self::HIGH_QUALITY_WIDTH, self::HIGH_QUALITY_HEIGHT);
-        imagecopy($canvas, $this->canvas, 0, 0, self::HIGH_QUALITY_OFFSET_LEFT, self::HIGH_QUALITY_OFFSET_TOP, self::HIGH_QUALITY_COPY_WIDTH, self::HIGH_QUALITY_COPY_HEIGHT);
-        $this->canvas = $canvas;
+        $image = new ImageProperty();
+        $image->create(self::HIGH_QUALITY_WIDTH, self::HIGH_QUALITY_HEIGHT);
+        $image->copyFrom($this->image, 0, 0, self::HIGH_QUALITY_OFFSET_LEFT, self::HIGH_QUALITY_OFFSET_TOP, self::HIGH_QUALITY_COPY_WIDTH, self::HIGH_QUALITY_COPY_HEIGHT);
+
+        $this->image = $image;
     }
 
     public function addPlayIcon()
     {
-        $imageWidth = imagesx($this->canvas);
-        $imageHeight = imagesy($this->canvas);
+        $playIcon = $this->obtainPlayIcon();
+        $left = $this->calculateCenter($this->image->obtainWidth(), $playIcon->obtainWidth());
+        $top = $this->calculateCenter($this->image->obtainHeight(), $playIcon->obtainHeight());
 
-        $play_icon = str_replace('{quality}', $this->quality, self::ICON_FILENAME);
+        $this->image->addWaterMark($playIcon, $left, $top);
+    }
 
-        $logoImage = imagecreatefrompng(__DIR__ . '/' . $play_icon);
-        imagealphablending($logoImage, true);
+    public function render($quality, $path = null)
+    {
+        $this->image->renderAsJpeg($quality, $path);
+    }
 
-        $logoWidth = imagesx($logoImage);
-        $logoHeight = imagesy($logoImage);
+    private function obtainPlayIcon()
+    {
+        $path = str_replace('{quality}', $this->quality, self::ICON_PATH);
+        $playIcon = new ImageProperty();
+        $playIcon->createFromPng(__DIR__ . '/' . $path);
+        $playIcon->addAlphaBlending();
 
-        $left = round($imageWidth / 2) - round($logoWidth / 2);
-        $top = round($imageHeight / 2) - round($logoHeight / 2);
+        return $playIcon;
+    }
 
-        $copyFilename = 'copy_png.png';
-        imagecopy($this->canvas, $logoImage, $left, $top, 0, 0, $logoWidth, $logoHeight);
-        imagepng($this->canvas, $copyFilename, 9);
-
-        $input = imagecreatefrompng($copyFilename);
-        $output = imagecreatetruecolor($imageWidth, $imageHeight);
-        $white = imagecolorallocate($output, 255, 255, 255);
-        imagefilledrectangle($output, 0, 0, $imageWidth, $imageHeight, $white);
-        imagecopy($output, $input, 0, 0, 0, 0, $imageWidth, $imageHeight);
-        $this->canvas = $output;
-
-        @unlink($copyFilename);
+    private function calculateCenter($image, $watermark)
+    {
+        return round($image / 2) - round($watermark / 2);
     }
 
 }

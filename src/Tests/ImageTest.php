@@ -42,9 +42,19 @@ class ImageTest extends PHPUnit_Framework_TestCase
         $image->addPlayIcon();
         
         $outputPath = __DIR__ . '/fixtures/image_create_play_icon.jpg';
-        imagejpeg($image->obtainImage(), $outputPath, 95);
-
+        $image->render(95, $outputPath);
         $expectedPath = __DIR__ . '/fixtures/image-hq-play.jpg';
+        $this->assertFileEquals($expectedPath, $outputPath);
+
+        unlink($outputPath);
+
+        $path = __DIR__ . '/fixtures/image.jpg';
+        $image = new Image($path);
+        $image->addPlayIcon();
+
+        $outputPath = __DIR__ . '/fixtures/image_create_mq_play_icon.jpg';
+        $image->render(95, $outputPath);
+        $expectedPath = __DIR__ . '/fixtures/image-mq-play.jpg';
         $this->assertFileEquals($expectedPath, $outputPath);
 
         unlink($outputPath);
