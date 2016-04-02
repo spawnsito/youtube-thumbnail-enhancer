@@ -3,10 +3,12 @@
 require_once __DIR__ . '/Configuration.php';
 require_once __DIR__ . '/CurlRequest.php';
 require_once __DIR__ . '/Image.php';
+require_once __DIR__ . '/FileSystem.php';
 
 class YoutubeThumbnail
 {
     private $curlRequest;
+    private $cacheSystem;
 
     public function getCurlRequest()
     {
@@ -21,19 +23,32 @@ class YoutubeThumbnail
     {
         $this->curlRequest = $curlRequest;
     }
+    
+    public function getCacheSystem()
+    {
+        if (!$this->cacheSystem) {
+            $this->cacheSystem = new FileSystem();
+        }
+
+        return $this->cacheSystem;
+    }
+    
+    public function setCacheSystem($cacheSystem)
+    {
+        $this->cacheSystem = $cacheSystem;
+    }
 
     public function create(Configuration $configuration)
     {
         $quality = $configuration->obtainQuality();
         $show_play_icon = $configuration->obtainShowPlayIcon();
         $play_btn_file_name = ($show_play_icon) ? "-play" : "";
-
         $youtubeId = $configuration->obtainYoutubeId();
 
         $filename = ($quality == "mq") ? $youtubeId . "-mq" : $youtubeId;
         $filename .= $play_btn_file_name;
 
-        if (file_exists("i/" . $filename . ".jpg") && !$configuration->obtainRefresh()) {
+        if ($this->getCacheSystem()->exists("i/" . $filename . ".jpg") && !$configuration->obtainRefresh()) {
             header("Location: i/" . $filename . ".jpg");
             die;
         }

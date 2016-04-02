@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../YoutubeThumbnail.php';
 require_once __DIR__ . '/../Configuration.php';
 require_once __DIR__ . '/stubs/CurlRequestStub.php';
+require_once __DIR__ . '/stubs/FileSystemStub.php';
 
 class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
 {
@@ -18,6 +19,7 @@ class YoutubeThumbnailTest extends PHPUnit_Framework_TestCase
 
         $youtubeThumbnail = new YoutubeThumbnail($configuration);
         $youtubeThumbnail->setCurlRequest(new CurlRequestStub());
+        $youtubeThumbnail->setCacheSystem(new FileSystemStub());
 
         $thumbnail = $youtubeThumbnail->create($configuration);
 
