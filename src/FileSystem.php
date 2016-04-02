@@ -13,7 +13,7 @@ class FileSystem
 
     public function exists($path)
     {
-        return file_exists($path);
+        return file_exists($this->path . '/' . $path);
     }
 
     public function obtain($filename)
