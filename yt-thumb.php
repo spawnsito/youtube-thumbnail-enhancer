@@ -2,13 +2,19 @@
 
 require 'src/Configuration.php';
 
-// GET YOUTUBE ID FROM THE SLEW OF YOUTUBE URLS
-// (FOUND ON STACKEXCHANGE SOMEWHERE)
-function getYouTubeIdFromURL($url)
+function isThereResponseFromYoutube($youtubeId)
 {
-    $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
-    preg_match($pattern, $url, $matches);
-    return isset($matches[1]) ? $matches[1] : false;
+    $handle = curl_init("https://www.youtube.com/watch/?v=" . $youtubeId);
+    curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
+    $response = curl_exec($handle);
+
+    $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+    if ($httpCode == 404 OR !$response) {
+        return false;
+    }
+
+    curl_close($handle);
+    return true;
 }
 
 $configuration = new Configuration($_REQUEST);
@@ -32,29 +38,16 @@ if (file_exists("i/" . $filename . ".jpg") && !$configuration->obtainRefresh()) 
     die;
 }
 
-
-// CHECK IF YOUTUBE VIDEO
-$handle = curl_init("https://www.youtube.com/watch/?v=" . $youtubeId);
-curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
-$response = curl_exec($handle);
-
-
-// CHECK FOR 404 OR NO RESPONSE
-$httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-if ($httpCode == 404 OR !$response) {
-    header("Status: 404 Not Found");
-    die("No YouTube video found or YouTube timed out. Try again soon.");
-}
-
-curl_close($handle);
-
-
 // IF NOT ID THROW AN ERROR
 if (!$youtubeId) {
     header("Status: 404 Not Found");
     die("YouTube ID not found");
 }
 
+if (!isThereResponseFromYoutube($youtubeId)) {
+    header("Status: 404 Not Found");
+    die("No YouTube video found or YouTube timed out. Try again soon.");
+}
 
 // CREATE IMAGE FROM YOUTUBE THUMB
 $image = imagecreatefromjpeg("http://img.youtube.com/vi/" . $youtubeId . "/" . $quality . "default.jpg");
